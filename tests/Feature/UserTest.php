@@ -275,4 +275,17 @@ class UserTest extends TestCase
         $this->deleteJson('/api/users/999')
             ->assertStatus(404);
     }
+
+    public function testSendUserMail()
+    {
+        $user = User::factory()->create();
+
+        $data = [
+            "title" => "Test title",
+            "body" => "Test body"
+        ];
+
+        $this->json('GET', 'api/users/' . $user->id . '/send-email', $data)
+            ->assertOk();
+    }
 }
