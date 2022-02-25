@@ -18,7 +18,7 @@ class UserTest extends TestCase
     {
         User::factory()->count(2)->create();
 
-        $this->getJson('/users')
+        $this->getJson('/api/users')
             ->assertStatus(200)
             ->assertJsonStructure([
                 'users' => [
@@ -46,7 +46,7 @@ class UserTest extends TestCase
         $userData['password'] = '123456';
         $userData['password_confirmation'] = '123456';
 
-        $this->postJson('/users', $userData)
+        $this->postJson('/api/users', $userData)
             ->assertStatus(201)
             ->assertJsonStructure([
                 'user' => [
@@ -80,7 +80,7 @@ class UserTest extends TestCase
         $userData['password'] = '';
         $userData['password_confirmation'] = '';
 
-        $this->postJson('/users', $userData)
+        $this->postJson('/api/users', $userData)
             ->assertInvalid(['name', 'email', 'city', 'state', 'password']);
     }
 
@@ -97,7 +97,7 @@ class UserTest extends TestCase
         $userData['password'] = 010101;
         $userData['password_confirmation'] = 010101;
 
-        $this->postJson('/users', $userData)
+        $this->postJson('/api/users', $userData)
             ->assertStatus(422)
             ->assertInvalid(['name', 'email', 'city', 'state', 'password']);
     }
@@ -112,7 +112,7 @@ class UserTest extends TestCase
         $userData['password'] = '123456';
         $userData['password_confirmation'] = '123456';
 
-        $this->postJson('/users', $userData)
+        $this->postJson('/api/users', $userData)
             ->assertStatus(422)
             ->assertInvalid(['email']);
     }
@@ -125,7 +125,7 @@ class UserTest extends TestCase
         $userData['password'] = '0101';
         $userData['password_confirmation'] = '0101';
 
-        $this->postJson('/users', $userData)
+        $this->postJson('/api/users', $userData)
             ->assertStatus(422)
             ->assertInvalid(['password']);
     }
@@ -137,7 +137,7 @@ class UserTest extends TestCase
         $userData = $user->toArray();
         $userData['password'] = '123456';
 
-        $this->postJson('/users', $userData)
+        $this->postJson('/api/users', $userData)
             ->assertStatus(422)
             ->assertInvalid(['password']);
     }
@@ -150,7 +150,7 @@ class UserTest extends TestCase
         $userData['password'] = '123456';
         $userData['password_confirmation'] = '010101';
 
-        $this->postJson('/users', $userData)
+        $this->postJson('/api/users', $userData)
             ->assertStatus(422)
             ->assertInvalid(['password']);
     }
@@ -167,7 +167,7 @@ class UserTest extends TestCase
         $userData['password'] = '123456';
         $userData['password_confirmation'] = '010101';
 
-        $this->postJson('/users', $userData)
+        $this->postJson('/api/users', $userData)
             ->assertStatus(422)
             ->assertInvalid(['email']);
     }
@@ -176,7 +176,7 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->getJson('/users/' . $user->id)
+        $this->getJson('api/users/' . $user->id)
             ->assertStatus(200)
             ->assertJsonStructure([
                 'user' => [
@@ -207,7 +207,7 @@ class UserTest extends TestCase
         $userData['name'] = "Name User Update";
         $userData['email'] = "emailupdate@test.com";
 
-        $this->putJson('/users/' . $user->id, $userData)
+        $this->putJson('api/users/' . $user->id, $userData)
             ->assertOk();
 
         $this->assertDatabaseHas('users', [
@@ -224,7 +224,7 @@ class UserTest extends TestCase
         $userData['name'] = "Name User Update";
         $userData['email'] = "emailupdate@test.com";
 
-        $this->putJson('/users/' . '99999', $userData)
+        $this->putJson('api/users/' . '99999', $userData)
             ->assertStatus(404);
     }
 
@@ -239,7 +239,7 @@ class UserTest extends TestCase
         $userData['password'] = '';
         $userData['password_confirmation'] = '';
 
-        $this->putJson('/users/' . $user->id, $userData)
+        $this->putJson('api/users/' . $user->id, $userData)
             ->assertInvalid(['name', 'email', 'city', 'state', 'password']);
     }
 
@@ -252,7 +252,7 @@ class UserTest extends TestCase
         $user1Data['name'] = 'Name Update';
         $user1Data['email'] = $user2->email;
 
-        $this->putJson('/users/' . $user1->id, $user1Data)
+        $this->putJson('api/users/' . $user1->id, $user1Data)
             ->assertStatus(422)
             ->assertInvalid(['email']);
     }
@@ -261,7 +261,7 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->deleteJson('/users/' . $user->id)
+        $this->deleteJson('api/users/' . $user->id)
             ->assertOk()
             ->assertJson(["delete" => true]);
 
@@ -272,7 +272,7 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->deleteJson('/users/999')
+        $this->deleteJson('/api/users/999')
             ->assertStatus(404);
     }
 }

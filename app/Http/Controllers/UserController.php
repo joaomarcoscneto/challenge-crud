@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SendUserMailRequest;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
+use App\Mail\SendUserMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -44,5 +47,19 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         return response()->json(["delete" => $user->delete()]);
+    }
+
+    public function sendUserMail(SendUserMailRequest $request, User $user)
+    {
+        $data = $request->validated();
+
+        $mailData = [
+            'title' => $data['title'],
+            'body' => $data['body']
+        ];
+
+        Mail::to($user->email)->send(new SendUserMail($mailData));
+
+        dd("Email is sent successfully.");
     }
 }
