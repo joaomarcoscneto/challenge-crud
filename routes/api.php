@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,7 +15,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/login', [App\Http\Controllers\AuthController::class, 'login'])->name('login');
+Route::controller(AuthController::class)->group(function () {
+    Route::post('/login', 'login');
+    Route::post('/logout', 'logout');
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{user}/send-email', [App\Http\Controllers\UserController::class, 'sendUserMail'])->name('users.send.email');

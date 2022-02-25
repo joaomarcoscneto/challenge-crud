@@ -1,39 +1,67 @@
 <template>
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-8">
-        <div class="card">
-          <div class="card-header">CRUD Users</div>
+    <div class="text-center" style="margin: 20px 0px 20px 0px">
+      <a href="https://shouts.dev/" target="_blank"
+        ><img src="https://i.imgur.com/Nt3kJXa.png" /></a
+      ><br />
+      <span class="text-secondary"
+        >Laravel SPA with Vue 3, Auth (Sanctum), CURD Example</span
+      >
+    </div>
 
-          <div class="card-body">
-            <input
-              v-model="form.email"
-              type="text"
-              placeholder="Email"
-              class="form-control"
-              :class="{ 'is-invalid': form.errors.has('email') }"
-              name="email"
-            />
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="collapse navbar-collapse">
+        <!-- for logged-in user-->
+        <div class="navbar-nav" v-if="isLoggedIn">
+          <router-link to="/" class="nav-item nav-link">Home</router-link>
 
-            <input
-              v-model="form.password"
-              type="text"
-              placeholder="password"
-              class="form-control"
-              :class="{ 'is-invalid': form.errors.has('password') }"
-              name="password"
-            />
-          </div>
+          <a class="nav-item nav-link" style="cursor: pointer" @click="logout"
+            >Logout</a
+          >
+        </div>
+        <!-- for non-logged user-->
+        <div class="navbar-nav" v-else>
+          <router-link to="/login" class="nav-item nav-link">Login</router-link>
         </div>
       </div>
-    </div>
+    </nav>
+    <br />
+    <router-view />
   </div>
 </template>
 
 <script>
 export default {
-  mounted() {
-    console.log("Component mounted.");
+  name: "App",
+  data() {
+    return {
+      isLoggedIn: false,
+    };
+  },
+  created() {
+    if (window.Laravel.isLoggedin) {
+      this.isLoggedIn = true;
+    }
+  },
+  methods: {
+    logout(e) {
+      console.log("ss");
+      e.preventDefault();
+      this.$axios.get("/sanctum/csrf-cookie").then((response) => {
+        this.$axios
+          .post("/api/logout")
+          .then((response) => {
+            if (response.data.success) {
+              window.location.href = "/login";
+            } else {
+              console.log(response);
+            }
+          })
+          .catch(function (error) {
+            console.error(error);
+          });
+      });
+    },
   },
 };
 </script>
