@@ -42,13 +42,12 @@ class UserTest extends TestCase
     {
         $user = User::factory()->make();
 
-        $userArray = $user->toArray();
-        $userArray['password'] = '123456';
-        $userArray['password_confirmation'] = '123456';
+        $userData = $user->toArray();
+        $userData['password'] = '123456';
+        $userData['password_confirmation'] = '123456';
 
-        $response = $this->postJson('/users', $userArray);
-
-        $response->assertStatus(201)
+        $this->postJson('/users', $userData)
+            ->assertStatus(201)
             ->assertJsonStructure([
                 'user' => [
                     'name',
@@ -61,6 +60,10 @@ class UserTest extends TestCase
                 ]
             ]);
 
+        $this->assertDatabaseHas('users', [
+            'name' => $userData['name'],
+            'email' => $userData['email']
+        ]);
         $this->assertDatabaseCount('users', 1);
     }
 
@@ -73,13 +76,12 @@ class UserTest extends TestCase
             'state' => '',
         ]);
 
-        $userArray = $user->toArray();
-        $userArray['password'] = '';
-        $userArray['password_confirmation'] = '';
+        $userData = $user->toArray();
+        $userData['password'] = '';
+        $userData['password_confirmation'] = '';
 
-        $response = $this->postJson('/users', $userArray);
-
-        $response->assertInvalid(['name', 'email', 'city', 'state', 'password']);
+        $this->postJson('/users', $userData)
+            ->assertInvalid(['name', 'email', 'city', 'state', 'password']);
     }
 
     public function testStoreValidationTypeFields()
@@ -91,13 +93,12 @@ class UserTest extends TestCase
             'state' => 1010,
         ]);
 
-        $userArray = $user->toArray();
-        $userArray['password'] = 010101;
-        $userArray['password_confirmation'] = 010101;
+        $userData = $user->toArray();
+        $userData['password'] = 010101;
+        $userData['password_confirmation'] = 010101;
 
-        $response = $this->postJson('/users', $userArray);
-
-        $response->assertStatus(422)
+        $this->postJson('/users', $userData)
+            ->assertStatus(422)
             ->assertInvalid(['name', 'email', 'city', 'state', 'password']);
     }
 
@@ -107,13 +108,12 @@ class UserTest extends TestCase
             'email' => 'sdafsdf'
         ]);
 
-        $userArray = $user->toArray();
-        $userArray['password'] = '123456';
-        $userArray['password_confirmation'] = '123456';
+        $userData = $user->toArray();
+        $userData['password'] = '123456';
+        $userData['password_confirmation'] = '123456';
 
-        $response = $this->postJson('/users', $userArray);
-
-        $response->assertStatus(422)
+        $this->postJson('/users', $userData)
+            ->assertStatus(422)
             ->assertInvalid(['email']);
     }
 
@@ -121,13 +121,12 @@ class UserTest extends TestCase
     {
         $user = User::factory()->make();
 
-        $userArray = $user->toArray();
-        $userArray['password'] = '0101';
-        $userArray['password_confirmation'] = '0101';
+        $userData = $user->toArray();
+        $userData['password'] = '0101';
+        $userData['password_confirmation'] = '0101';
 
-        $response = $this->postJson('/users', $userArray);
-
-        $response->assertStatus(422)
+        $this->postJson('/users', $userData)
+            ->assertStatus(422)
             ->assertInvalid(['password']);
     }
 
@@ -135,12 +134,11 @@ class UserTest extends TestCase
     {
         $user = User::factory()->make();
 
-        $userArray = $user->toArray();
-        $userArray['password'] = '123456';
+        $userData = $user->toArray();
+        $userData['password'] = '123456';
 
-        $response = $this->postJson('/users', $userArray);
-
-        $response->assertStatus(422)
+        $this->postJson('/users', $userData)
+            ->assertStatus(422)
             ->assertInvalid(['password']);
     }
 
@@ -148,13 +146,12 @@ class UserTest extends TestCase
     {
         $user = User::factory()->make();
 
-        $userArray = $user->toArray();
-        $userArray['password'] = '123456';
-        $userArray['password_confirmation'] = '010101';
+        $userData = $user->toArray();
+        $userData['password'] = '123456';
+        $userData['password_confirmation'] = '010101';
 
-        $response = $this->postJson('/users', $userArray);
-
-        $response->assertStatus(422)
+        $this->postJson('/users', $userData)
+            ->assertStatus(422)
             ->assertInvalid(['password']);
     }
 
@@ -166,13 +163,97 @@ class UserTest extends TestCase
             'email' => $user1->email
         ]);
 
-        $userArray = $user2->toArray();
-        $userArray['password'] = '123456';
-        $userArray['password_confirmation'] = '010101';
+        $userData = $user2->toArray();
+        $userData['password'] = '123456';
+        $userData['password_confirmation'] = '010101';
 
-        $response = $this->postJson('/users', $userArray);
+        $this->postJson('/users', $userData)
+            ->assertStatus(422)
+            ->assertInvalid(['email']);
+    }
 
-        $response->assertStatus(422)
+    public function testShow()
+    {
+        $user = User::factory()->create();
+
+        $this->getJson('/users/' . $user->id)
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'user' => [
+                    'id',
+                    'name',
+                    'email',
+                    'email_verified_at',
+                    'created_at',
+                    'updated_at',
+                    'city',
+                    'state'
+                ]
+            ]);
+    }
+
+    public function testShowWithNotExistsUserId()
+    {
+        User::factory()->create();
+
+        $this->getJson('/users/999')->assertStatus(404);
+    }
+
+    public function testUpdate()
+    {
+        $user = User::factory()->create();
+
+        $userData = $user->toArray();
+        $userData['name'] = "Name User Update";
+        $userData['email'] = "emailupdate@test.com";
+
+        $this->putJson('/users/' . $user->id, $userData)
+            ->assertOk();
+
+        $this->assertDatabaseHas('users', [
+            'name' => "Name User Update",
+            'email' => "emailupdate@test.com"
+        ]);
+    }
+
+    public function testUpdateWithNotExistsUserId()
+    {
+        $user = User::factory()->create();
+
+        $userData = $user->toArray();
+        $userData['name'] = "Name User Update";
+        $userData['email'] = "emailupdate@test.com";
+
+        $this->putJson('/users/' . '99999', $userData)
+            ->assertStatus(404);
+    }
+
+    public function testUpdateValidations()
+    {
+        $user = User::factory()->create();
+
+        $userData['name'] = '';
+        $userData['email'] = '';
+        $userData['city'] = '';
+        $userData['state'] = '';
+        $userData['password'] = '';
+        $userData['password_confirmation'] = '';
+
+        $this->putJson('/users/' . $user->id, $userData)
+            ->assertInvalid(['name', 'email', 'city', 'state', 'password']);
+    }
+
+    public function testUpdateUniqueEmailValidation()
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $user1Data = $user1->toArray();
+        $user1Data['name'] = 'Name Update';
+        $user1Data['email'] = $user2->email;
+
+        $this->putJson('/users/' . $user1->id, $user1Data)
+            ->assertStatus(422)
             ->assertInvalid(['email']);
     }
 }
