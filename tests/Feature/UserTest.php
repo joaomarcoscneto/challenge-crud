@@ -192,7 +192,7 @@ class UserTest extends TestCase
             ]);
     }
 
-    public function testShowWithNotExistsUserId()
+    public function testShowWhenNotExistsUserId()
     {
         User::factory()->create();
 
@@ -216,7 +216,7 @@ class UserTest extends TestCase
         ]);
     }
 
-    public function testUpdateWithNotExistsUserId()
+    public function testUpdateWhenNotExistsUserId()
     {
         $user = User::factory()->create();
 
@@ -255,5 +255,24 @@ class UserTest extends TestCase
         $this->putJson('/users/' . $user1->id, $user1Data)
             ->assertStatus(422)
             ->assertInvalid(['email']);
+    }
+
+    public function testDestroy()
+    {
+        $user = User::factory()->create();
+
+        $this->deleteJson('/users/' . $user->id)
+            ->assertOk()
+            ->assertJson(["delete" => true]);
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function testDestroyWhenNotExistsUserId()
+    {
+        $user = User::factory()->create();
+
+        $this->deleteJson('/users/999')
+            ->assertStatus(404);
     }
 }
