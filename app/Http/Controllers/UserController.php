@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SendUserMailRequest;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
-use App\Jobs\SendUserMailJob;
 use App\Models\User;
 use App\Services\SendUserMailService;
 use Illuminate\Support\Facades\Hash;
