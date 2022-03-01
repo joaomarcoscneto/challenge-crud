@@ -53,6 +53,7 @@ class UserController extends Controller
 
         $mailData = [
             'title' => $data['title'],
+            'subject' => $data['subject'],
             'body' => $data['body']
         ];
 

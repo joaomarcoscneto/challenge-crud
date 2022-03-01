@@ -25,6 +25,7 @@ class SendUserMailRequest extends FormRequest
     {
         return [
             'title' => ['required'],
+            'subject' => ['required'],
             'body' => ['required']
         ];
     }

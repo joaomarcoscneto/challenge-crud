@@ -12,6 +12,12 @@ export const routes = [
     },
 
     {
+        name: '',
+        path: '/',
+        component: Home
+    },
+
+    {
         name: 'home',
         path: '/home',
         component: Home

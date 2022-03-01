@@ -1,32 +1,35 @@
 <template>
   <div class="container">
-    <div class="text-center" style="margin: 20px 0px 20px 0px">
-      <a href="https://shouts.dev/" target="_blank"
-        ><img src="https://i.imgur.com/Nt3kJXa.png" /></a
-      ><br />
-      <span class="text-secondary"
-        >Laravel SPA with Vue 3, Auth (Sanctum), CURD Example</span
-      >
-    </div>
+    <div class="card">
+      <div class="card-header">E-Commerce Brasil</div>
+      <div class="card-text">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <div class="collapse navbar-collapse">
+            <!-- for logged-in user-->
+            <div class="navbar-nav" v-if="isLoggedIn">
+              <router-link to="/home" class="nav-item nav-link"
+                >Home</router-link
+              >
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="collapse navbar-collapse">
-        <!-- for logged-in user-->
-        <div class="navbar-nav" v-if="isLoggedIn">
-          <router-link to="/" class="nav-item nav-link">Home</router-link>
-
-          <a class="nav-item nav-link" style="cursor: pointer" @click="logout"
-            >Logout</a
-          >
-        </div>
-        <!-- for non-logged user-->
-        <div class="navbar-nav" v-else>
-          <router-link to="/login" class="nav-item nav-link">Login</router-link>
-        </div>
+              <a
+                class="nav-item nav-link"
+                style="cursor: pointer"
+                @click="logout"
+                >Logout</a
+              >
+            </div>
+            <!-- for non-logged user-->
+            <div class="navbar-nav" v-else>
+              <router-link to="/login" class="nav-item nav-link"
+                >Login</router-link
+              >
+            </div>
+          </div>
+        </nav>
+        <br />
+        <router-view />
       </div>
-    </nav>
-    <br />
-    <router-view />
+    </div>
   </div>
 </template>
 
@@ -45,7 +48,6 @@ export default {
   },
   methods: {
     logout(e) {
-      console.log("ss");
       e.preventDefault();
       this.$axios.get("/sanctum/csrf-cookie").then((response) => {
         this.$axios
@@ -54,7 +56,6 @@ export default {
             if (response.data.success) {
               window.location.href = "/login";
             } else {
-              console.log(response);
             }
           })
           .catch(function (error) {

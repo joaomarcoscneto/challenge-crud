@@ -21,7 +21,12 @@
           <form @submit.prevent="submit">
             <div class="form-group">
               <label>Name</label>
-              <input type="text" class="form-control" v-model="user.name" />
+              <input
+                type="text"
+                class="form-control"
+                v-model="user.name"
+                disabled
+              />
             </div>
             <div class="form-group">
               <label>E-mail</label>
@@ -30,46 +35,30 @@
                 class="form-control"
                 v-model="user.email"
                 name="email"
+                disabled
               />
             </div>
             <div class="form-group">
-              <label>City</label>
-              <input type="text" class="form-control" v-model="user.city" />
-            </div>
-            <div class="form-group">
-              <label>State</label>
-              <input
-                type="text"
-                class="form-control"
-                v-model="user.state"
-                name="state"
-              />
-            </div>
-            <div class="form-group">
-              <label>Password<small v-if="this.user.id">*</small></label>
-              <input
-                type="password"
-                class="form-control"
-                v-model="user.password"
-              />
-            </div>
-            <div class="form-group">
-              <label>Password confirmation</label>
-              <input
-                type="password"
-                class="form-control"
-                v-model="user.password_confirmation"
-              />
+              <div class="form-group">
+                <label>Subject</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  v-model="mail.subject"
+                />
+              </div>
+              <label>Title</label>
+              <input type="text" class="form-control" v-model="mail.title" />
             </div>
 
+            <div class="form-group">
+              <label>Body</label>
+              <textarea class="form-control" v-model="mail.body" name="body" />
+            </div>
             <button type="submit" class="btn btn-primary mt-3">Submit</button>
           </form>
         </slot>
       </section>
-
-      <footer class="modal-footer" v-if="this.user.id">
-        <div>*Do not fill in the password if you do not want to update</div>
-      </footer>
     </div>
   </div>
 </template>
@@ -79,12 +68,16 @@
 export default {
   name: "UserForm",
   props: {
-    userUpdate: Object,
+    userSendEmail: Object,
   },
   data() {
     return {
-      user: this.userUpdate,
+      user: this.userSendEmail,
       validationErrors: "",
+      mail: {
+        title: "",
+        body: "",
+      },
     };
   },
   methods: {
@@ -97,31 +90,11 @@ export default {
     },
 
     submit() {
-      if (!(this.user.password && this.user.password_confirmation)) {
-        delete this.user.password;
-        delete this.user.password_confirmation;
-      }
-      this.user.id ? this.updateUser() : this.addUser();
-    },
-    updateUser() {
       this.$axios.get("/sanctum/csrf-cookie").then((response) => {
         this.$axios
-          .put("/api/users/" + this.user.id, this.user)
-          .then((response) => {
-            this.close();
-            this.refresh();
+          .get("/api/users/" + this.user.id + "/send-email", {
+            params: this.mail,
           })
-          .catch((error) => {
-            if (error.response.status == 422) {
-              this.validationErrors = error.response.data.errors;
-            }
-          });
-      });
-    },
-    addUser() {
-      this.$axios.get("/sanctum/csrf-cookie").then((response) => {
-        this.$axios
-          .post("/api/users", this.user)
           .then((response) => {
             this.close();
             this.refresh();

@@ -29,7 +29,8 @@ class SendUserMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Mail example')
-            ->view('emails.sendUserMail');
+        return $this->view('emails.sendUserMail', [
+            'mailData' => $this->mailData
+        ])->subject($this->mailData['subject']);
     }
 }
