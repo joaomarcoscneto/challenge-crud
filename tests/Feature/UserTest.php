@@ -4,10 +4,20 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
+    protected $user;
+
+    public function setup(): void
+    {
+        parent::setup();
+        $this->user = User::factory()->create();
+        Sanctum::actingAs($this->user);
+    }
     use RefreshDatabase;
     /**
      * A basic feature test example.
@@ -35,7 +45,7 @@ class UserTest extends TestCase
                 ]
             ]);
 
-        $this->assertDatabaseCount('users', 2);
+        $this->assertDatabaseCount('users', 3);
     }
 
     public function testStore()
@@ -64,7 +74,7 @@ class UserTest extends TestCase
             'name' => $userData['name'],
             'email' => $userData['email']
         ]);
-        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('users', 2);
     }
 
     public function testStoreValidationRequired()
@@ -265,7 +275,7 @@ class UserTest extends TestCase
             ->assertOk()
             ->assertJson(["delete" => true]);
 
-        $this->assertDatabaseCount('users', 0);
+        $this->assertDatabaseCount('users', 1);
     }
 
     public function testDestroyWhenNotExistsUserId()
@@ -281,6 +291,7 @@ class UserTest extends TestCase
         $user = User::factory()->create();
 
         $data = [
+            "subject" => "TestSubject",
             "title" => "Test title",
             "body" => "Test body"
         ];
